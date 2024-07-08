@@ -199,7 +199,16 @@ async function run(context, plugins) {
 
     // Create the tag before calling the publish plugins as some require the tag to exists
     logger.warn("before tag");
-    await tag(nextRelease.gitTag, nextRelease.gitHead, {cwd, env});
+    try {
+      logger.info(`nextRelease.gitTag: ${nextRelease.gitTag}`)
+      logger.info(`nextRelease.gitHead: ${nextRelease.gitHead}`)
+      logger.info(`cwd: ${cwd}`)
+      const out = await tag(nextRelease.gitTag, nextRelease.gitHead, {cwd, env, timeout: 20000});
+      logger.info(`tag stdout: ${out.stdout}`);
+      logger.info(`tag stderr: ${out.stderr}`);
+    } catch (error) {
+      logger.warn(`tag error: ${error}`);
+    }
 
     logger.warn("before addNote");
     await addNote({channels: [nextRelease.channel]}, nextRelease.gitHead, {cwd, env});
